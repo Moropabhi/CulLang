@@ -51,7 +51,7 @@ std::array<Position, 2> IfNode::getPos() {
 Ref<Object> IfNode::visit() {
     auto cond = condition->visit();
     if (*(bool *)cond->getVal()) {
-        expression->visit();expression->visit();
+        expression->visit();
         return Object::NONE;
     }
     if (elseExpression)

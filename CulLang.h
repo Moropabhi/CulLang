@@ -10,10 +10,11 @@ auto Shurti_isTautor = true;
 class CulLang {
   public:
     CulLang() = default;
-    std::string &getInput() {
-        static std::string a;
+    std::string getInput() {
+        std::string a;
         std::cout << ">>> ";
-        std::getline(std::cin, a);
+        //std::getline(std::cin, a);
+        std::getline(std::cin,a);
         return a;
     }
 
@@ -44,6 +45,8 @@ class CulLang {
             input = getInput();
             if (input == ".")
                 break;
+            if(input == "")
+                continue;
             auto out = interpreteCode(input);
 
             std::cout << out << '\n';
@@ -62,8 +65,10 @@ class CulLang {
             code += '\n';
         }
 
+        // a preprocessor class (will be removed on later commits)
         PreProcessor pprocess(code);
         code = pprocess.format();
+
 #if DEBUG
         std::cout << code << '\n';
 #endif
@@ -91,6 +96,7 @@ class CulLang {
             std::cout << "Parser : Error occured failed" << '\n';
             return;
         }
+        
 #if DEBUG
         for (auto &node : nodes)
             std::cout << node << ' ' << (node ? node->getInStr() : "node")
@@ -100,6 +106,7 @@ class CulLang {
         // creating the program object and run it
         Program prog(nodes);
         prog.run();
+
 #if DEBUG
         std::cout << "DEBUG:\n";
         std::cout << ErrorHandler::anyErrors() << '\n';

@@ -21,9 +21,4 @@ if A!=0 :{
     print b+A-2
 }
 
-///*
-//we have multi line comments toooooo
-//yesssss
-//*/
-
 

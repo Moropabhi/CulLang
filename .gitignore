@@ -1,3 +1,5 @@
 *.exe
 **/*.exe
 .vscode/
+.gitignore
+TEST.PY

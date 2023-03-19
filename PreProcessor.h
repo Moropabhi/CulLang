@@ -74,7 +74,6 @@ void PreProcessor::removeMultiLineComment() {
         currentIdx++;
     currentIdx++;
 }
-
 void PreProcessor::removeReductantSpaces() {
     while (input[currentIdx] == ' ')
         currentIdx++;
