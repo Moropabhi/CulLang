@@ -1,0 +1,29 @@
+print "hello world"
+
+//hello brother nice to meet you 
+
+let A = 0
+//one line while loop
+while A<10 : print A++
+
+//one line for loop
+for let a = 0 \ a<10 \ a++ : print a
+
+
+//new block 
+
+if A!=0 :{
+    print "oh yes"
+    print A
+}else :{
+    print "nevermind"
+	let b = 90
+    print b+A-2
+}
+
+///*
+//we have multi line comments toooooo
+//yesssss
+//*/
+
+

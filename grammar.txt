@@ -1,0 +1,54 @@
+
+CULL LANGUAGE GRAMMAR
+
+#THE WHOLE PROGRAM
+program 	: stmt ((NEWLINE) stmt)
+
+specifier 	TODO: stmt 
+			TODO: block
+
+block 		TODO: LCURLY stmt ((NEWLINE) stmt) RCURLY
+			TODO: block
+
+#STATEMENT THAT DOESN'T RETURN ANY THING AND PART THE LANGUAGE CONTROL FLOW
+stmt 		: expr
+			: KEYWORD:LET IDENTIFIER EQUAL expr 
+			: IDENTIFIER EQUAL expr 
+
+			: IDENTIFIER IPLUS|IMINUS|IMUL|IDIV|MOD|IPOW expr
+
+			: KEYWORD:PRINT expr
+
+			: KEYWORD:IF condition COLON stmt
+			: KEYWORD:IF condition COLON block
+			: KEYWORD:IF condition COLON stmt KEYWORD:ELSE COLON stmt
+			: KEYWORD:IF condition COLON stmt KEYWORD:ELIF condition COLON stmt
+			: KEYWORD:IF condition COLON stmt KEYWORD:ELIF condition COLON stmt KEYWORD:ELSE stmt
+
+			: KEYWORD:FOR stmt BACKSLASH condition BACKSLASH stmt COLON stmt
+			TODO: KEYWORD:LOOP COLON block
+			: KEYWORD:WHILE condition COLON stmt
+
+			TODO: KEYWORD:FUNC IDENTIFIER LPAREN RPAREN COLON stmt
+
+
+
+#CONDITION THAT RETURN A BOOL TRUE OR FALSE
+condition 	: expr iS_EQUAL|iS_NOT_EQUAL|iS_GREATER|iS_LESSER|iS_GREATER_EQUAL|iS_LESSER_EQUAL expr
+			: condition KEYWORD:AND|OR condition
+			: KEYWORD:NOT condition
+
+#EXPRESSION THAT RETURN A VALUE 
+expr		: term ((PLUS|MINUS) term)* 
+
+term		: factor ((MUL|DIV|MOD) factor)*
+
+factor		: power
+			: PLUS|MINUS power
+			: power (INCREMENT|DECREMENT)
+
+power   	: atom (POW factor)*
+
+atom		: INT|FLOAT|IDENTIFIER|STR|BOOL
+			: LPAREN condition RPAREN
+			TODO: IDENTIFIER LPAREN RPAREN
