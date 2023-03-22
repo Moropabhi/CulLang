@@ -14,7 +14,7 @@ class IfNode : public Node {
     virtual ~IfNode() override;
 
     virtual std::string getInStr() override;
-    NodeType getType() override;
+    NodeType getType() override  { return IfblockNode; }
     virtual std::array<Position, 2> getPos() override;
 
     virtual Ref<Object> visit() override;
@@ -22,14 +22,9 @@ class IfNode : public Node {
 
 IfNode::IfNode(const Ref<Node> &condition, const Ref<Node> &expression,
                const Ref<Node> &elseexpr)
-    : condition(condition), expression(expression), elseExpression(elseexpr),
-      Node(nullptr) {
-    type = IfblockNode;
-}
+    : condition(condition), expression(expression), elseExpression(elseexpr){}
 IfNode::IfNode(const Ref<Node> &condition, const Ref<Node> &expression)
-    : condition(condition), expression(expression), Node(nullptr) {
-    type = IfblockNode;
-}
+    : condition(condition), expression(expression){}
 
 IfNode::~IfNode() {}
 
@@ -41,8 +36,6 @@ std::string IfNode::getInStr() {
     }
     return out;
 };
-
-NodeType IfNode::getType() { return IfblockNode; }
 
 std::array<Position, 2> IfNode::getPos() {
     return {condition->getPos()[0], expression->getPos()[1]};

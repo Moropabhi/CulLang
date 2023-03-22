@@ -11,7 +11,8 @@ int main() {
     std::cout << "Enter filename:\n";
     std::cin >> file;
 
-    lang.runFile(file);
+
+    (file == "std-interpreter")?lang.runInterpreter():lang.runFile(file);
 
 
     return 0;

@@ -1,4 +1,8 @@
 #pragma once
+
+#include "../Position.h"
+#include <array>
+
 namespace CulLang {
 
 enum ErrorType {
@@ -10,6 +14,7 @@ enum ErrorType {
     ZeroDivision,
     InvalidOperation,
     NotDefined,
+    AlreadyDefined,
     FeatureNotImplementedYet,
     NoOfError
 
@@ -40,6 +45,7 @@ class Error {
 
     // raise the error to the console
     void raise() const {
+#if !THROW_ERROR
         if (!type)
             return;
         std::string text;
@@ -56,15 +62,24 @@ class Error {
         std::cout << "File : " << pos[0].filename << '\n'
                   << "Line : " << pos[0].ln << '\n'
                   << "Pos : " << pos[0].col << '\n';
+#endif
     }
 
   protected:
     ErrorType type;
     std::array<Position, 2> pos = {};
     Str message = "";
-    std::string ERRORS[NoOfError] = {
-        "NoError",          "UnknownError", "InvalidCharacterError",
-        "SyntaxError",      "ValueError",   "ZeroDivision",
-        "InvalidOperation", "NotDefined",   "FeatureNotImplementedYet"};
+#if !THROW_ERROR
+    std::string ERRORS[NoOfError] = {"NoError",
+                                     "UnknownError",
+                                     "InvalidCharacterError",
+                                     "SyntaxError",
+                                     "ValueError",
+                                     "ZeroDivision",
+                                     "InvalidOperation",
+                                     "NotDefined",
+                                     "AlreadyDefined",
+                                     "FeatureNotImplementedYet"};
+#endif
 };
 } // namespace CulLang

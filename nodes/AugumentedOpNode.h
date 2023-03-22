@@ -6,10 +6,6 @@ namespace CulLang
 	class AugumentedOperatorNode : public Node
 	{
 	public:
-		const Token& var_name;
-        Position left_pos;
-		Ref<Node> right;
-
 		AugumentedOperatorNode(const Token* left, const Token *op,const Ref<Node> &right);
 		virtual ~AugumentedOperatorNode() override;
 
@@ -19,22 +15,25 @@ namespace CulLang
 
 		virtual Ref<Object> visit() override;
 		Ref<Object> callOperation(TokenType type, const Ref<Object> &L, const Ref<Object> &R);
+	private:
+		Token var_tok;
+        TokenType operator_;
+		Ref<Node> right;
 	};
 }
 namespace CulLang
 {
 
 	AugumentedOperatorNode::AugumentedOperatorNode(const Token* left, const Token *op, const Ref<Node> &right)
-		: var_name(*left),left_pos(left->getPos()[0]), Node(op), right(right)
+		: var_tok(std::move(*left)), operator_(op->getType()), right(right)
 	{
-		type = AugumentedNode;
 	}
 
 	AugumentedOperatorNode::~AugumentedOperatorNode() {}
 
 	std::string AugumentedOperatorNode::getInStr()
 	{
-		return var_name.getVal() + " " + Node::getInStr() + " " + right->getInStr() ;
+		return var_tok.getVal() + " " + Node::getInStr() + " " + right->getInStr() ;
 	};
 
 	NodeType AugumentedOperatorNode::getType()
@@ -44,13 +43,13 @@ namespace CulLang
 
 	std::array<Position, 2> AugumentedOperatorNode::getPos()
 	{
-		return {left_pos, right->getPos()[1]};
+		return {var_tok.getPos()[0], right->getPos()[1]};
 	}
 
 	Ref<Object> AugumentedOperatorNode::visit()
 	{
 		auto R = right->visit();
-		return callOperation(value->getType(), SymbolTable::getGlobal().getValue(var_name), R);
+		return callOperation(operator_, SymbolTable::getGlobal().getValue(var_tok), R);
 	}
 
 	Ref<Object> AugumentedOperatorNode::callOperation(TokenType type, const Ref<Object> &L, const Ref<Object> &R)

@@ -2,7 +2,6 @@
 #include "Object.h"
 #include <cmath>
 
-#define FLOAT double
 
 namespace CulLang {
 class Float : public Object {

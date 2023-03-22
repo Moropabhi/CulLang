@@ -19,22 +19,21 @@ namespace CulLang
 
 	private:
 		Ref<Node> right;
+		Token op_tok;
 	};
 }
 namespace CulLang
 {
 	UnaryOperatorNode::UnaryOperatorNode(const Token *op, Ref<Node> right)
-		: Node(op), right(right)
-	{
-		type = UnaryNode;
-	}
+		: op_tok(std::move(*op)), right(right)
+	{}
 	UnaryOperatorNode::~UnaryOperatorNode()
 	{
 	}
 
 	std::string UnaryOperatorNode::getInStr()
 	{
-		if (value->getType() == culIncrement || value->getType() == culDecrement)
+		if (op_tok.getType() == culIncrement || op_tok.getType() == culDecrement)
 			return " ( " + right->getInStr() + " " + Node::getInStr() + " ) ";
 		return " ( " + Node::getInStr() + " " + right->getInStr() + " ) ";
 	}
@@ -45,13 +44,13 @@ namespace CulLang
 
 	std::array<Position, 2> UnaryOperatorNode::getPos()
 	{
-		return {value->getPos()[0], right->getPos()[1]};
+		return {op_tok.getPos()[0], right->getPos()[1]};
 	}
 
 	Ref<Object> UnaryOperatorNode::visit()
 	{
 		auto R = right->visit();
-		return callOperation(value,R);
+		return callOperation(&op_tok,R);
 	}
 	Ref<Object> UnaryOperatorNode::callOperation(const Token* val, const Ref<Object> &R)
 	{

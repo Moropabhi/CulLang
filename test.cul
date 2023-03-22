@@ -1,24 +1,12 @@
-print "hello world"
-
-//hello brother nice to meet you 
-
-let A = 0
-//one line while loop
-while A<10 : print A++
-
-//one line for loop
-for let a = 0 \ a<10 \ a++ : print a
-
-
-//new block 
-
-if A!=0 :{
-    print "oh yes"
-    print A
+let a = -30
+if a> 39:{
+    print 90
+}elif a> -50:{
+    print 0
+}elif a> 0:{
+    print 9
 }else :{
-    print "nevermind"
-	let b = 90
-    print b+A-2
+    print -1
 }
 
 

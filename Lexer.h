@@ -182,6 +182,7 @@ bool Lexer::isOperator(std::vector<Token> &tokens) {
         op += m_CurrentChar;
         advance();
     }
+    LOG(op);
     auto val = std::find(TokenTypeStr.begin() + culOperatorsStart,
                          TokenTypeStr.begin() + culOperatorsEnd, op) -
                TokenTypeStr.begin();

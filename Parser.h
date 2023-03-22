@@ -11,6 +11,7 @@
 #include "nodes/IfNode.h"
 #include "nodes/PrintNode.h"
 #include "nodes/UnaryOperatorNode.h"
+#include "nodes/ValueNode.h"
 #include "nodes/VarAccessNode.h"
 #include "nodes/VarAllocateNode.h"
 #include "nodes/WhileNode.h"
@@ -43,6 +44,8 @@ class Parser {
   private:
     void advance();
     void retreat();
+
+    bool checkFor(TokenType type);
 
     Ref<Node> atom();
     Ref<Node> power();
@@ -145,6 +148,14 @@ void Parser::retreat() {
     }
 }
 
+bool Parser::checkFor(TokenType type) {
+    if (currentToken->getType() == type)
+        return true;
+    ErrorHandler ::raiseError({SyntaxError, currentToken->getPos(),
+                               "expected a '" + TokenTypeStr[type] + "'"});
+    return false;
+}
+
 Ref<Node> Parser::atom() {
     if (!currentToken)
         return nullptr;
@@ -168,7 +179,7 @@ Ref<Node> Parser::atom() {
         Token::checkIfEqual(currentToken, culFloat) ||
         Token::checkIfEqual(currentToken, culStr) ||
         Token::checkIfEqual(currentToken, culBool)) {
-        Ref<Node> res = std::make_shared<Node>(currentToken);
+        auto res = std::make_shared<ValueNode>((currentToken));
         advance();
         return res;
     }
@@ -293,15 +304,15 @@ Ref<Node> Parser::block() {
     std::vector<Ref<Node>> stmts;
     Ref<Node> st;
     do {
-        //LOG(currentToken->getVal()<<" : "<<currentToken->getTypeStr());
+        // LOG(currentToken->getVal()<<" : "<<currentToken->getTypeStr());
         st = stmt();
-        //LOG(currentToken->getVal()<<" : "<<currentToken->getTypeStr());
+        // LOG(currentToken->getVal()<<" : "<<currentToken->getTypeStr());
         if (st) {
             stmts.push_back(st);
             advance();
-            //LOG(currentToken->getVal()<<" : "<<currentToken->getTypeStr());
+            // LOG(currentToken->getVal()<<" : "<<currentToken->getTypeStr());
         }
-        
+
     } while (st && currentToken && currentToken->getType() != culRCurly);
 
     if (currentToken->getType() != culRCurly) {
@@ -365,63 +376,40 @@ Ref<Node> Parser::checkKeyword() {
         advance();
         return std::make_shared<UnaryOperatorNode>(op, condition());
     } else if (IS_KEYWORD(currentToken, culIf)) {
-        auto iftok = currentToken;
+        // if + elifs statements
+        std::vector<IfElifNode::ElifCode> ifs;
         advance();
+        // getting the condition
         auto cond = condition();
-        if (currentToken->getType() != culColon) {
-            ErrorHandler ::raiseError(
-                {SyntaxError, currentToken->getPos(), "expected a colon"});
+        if (!checkFor(culColon))
             return nullptr;
-        }
         advance();
-        Ref<Node> statement = nullptr;
-        statement = block();
-        //LOG(currentToken->getVal());
+        ifs.push_back({cond, block()});
+
         if (!currentToken)
-            return std::make_shared<IfNode>(cond, statement);
-        // if (currentToken && currentToken->getType() != culNewLine) {
-        //     ErrorHandler ::raiseError(
-        //         {SyntaxError, currentToken->getPos(), "expected newline"});
-        //     return nullptr;
-        // }
-        //advance();
-        std::vector<IfElifNode::ElifCode> elifs;
+            return std::make_shared<IfElifNode>(ifs, nullptr);
+
         if (IS_KEYWORD(currentToken, culElif)) {
             while (IS_KEYWORD(currentToken, culElif)) {
+                std::cout<<"elif\n";
                 advance();
                 auto cond = condition();
-                if (currentToken->getType() != culColon) {
-                    ErrorHandler ::raiseError({SyntaxError,
-                                               currentToken->getPos(),
-                                               "expected a colon"});
+                if (!checkFor(culColon))
                     return nullptr;
-                }
                 advance();
-                auto statement = block();
-                elifs.push_back({cond, statement});
-                advance();
+                ifs.push_back({cond, block()});
             }
         }
-        if (!IS_KEYWORD(currentToken, culElse))
-            if (elifs.size())
-                return std::make_shared<IfElifNode>(cond, statement, elifs,
-                                                    nullptr);
-            else
-                return std::make_shared<IfNode>(cond, statement);
-
-        advance();
-        if (currentToken->getType() != culColon) {
-            ErrorHandler ::raiseError(
-                {SyntaxError, currentToken->getPos(), "expected a colon"});
-            return nullptr;
+        Ref<Node> Elsestatement = nullptr;
+        if (IS_KEYWORD(currentToken, culElse)) {
+            advance();
+            if (!checkFor(culColon))
+                return nullptr;
+            advance();
+            Elsestatement = block();
         }
-        advance();
-        auto Elsestatement = block();
-        if (elifs.size())
-            return std::make_shared<IfElifNode>(cond, statement, elifs,
-                                                Elsestatement);
-        else
-            return std::make_shared<IfNode>(cond, statement, Elsestatement);
+
+        return std::make_shared<IfElifNode>(ifs, Elsestatement);
 
     } else if (IS_KEYWORD(currentToken, culWhile)) {
         advance();

@@ -49,8 +49,8 @@ enum TokenType
 	culEqual,
 	culOperatorsEnd,
 	culIndentifier=culOperatorsEnd,
-	culKeyword,
 	culNewLine,
+	culKeyword,
 	culTotal
 };
 using Datatypes = TokenType;
@@ -95,8 +95,8 @@ const std::array<std::string,culTotal> TokenTypeStr = {
 	"}",
 	"=",
 	"identifier",
-	"keyword",
 	"\\n"
+	"keyword",
 	};
 
 	constexpr TokenType  culSlash = culDiv;

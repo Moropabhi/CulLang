@@ -7,12 +7,12 @@ namespace CulLang
     public:
         PrintNode(Ref<Node> expr)
             :expr(expr)
-        {
-            type = PrintingNode;
-        }
+        {}
 
         virtual Str getInStr() override;
         virtual std::array<Position, 2> getPos() override;
+
+        virtual NodeType getType() override {return PrintingNode;}
 
         virtual Ref<Object> visit() override;
 
@@ -31,7 +31,7 @@ namespace CulLang
 
     std::array<Position, 2> PrintNode::getPos()
     {
-        return {value->getPos()[0], expr->getPos()[1]};
+        return expr->getPos();
     }
 
     Ref<Object> PrintNode::visit()

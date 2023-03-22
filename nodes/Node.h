@@ -3,12 +3,10 @@
 #include "../datatypes/Object.h"
 #include "../Token.h"
 
-class Cul;
-
 namespace CulLang {
 
 	enum NodeType {
-		ValueNode,
+		ValueNode_,
 		UnaryNode,
 		BinaryNode,
 		VarAllocatingNode,
@@ -28,79 +26,41 @@ namespace CulLang {
 	{
 
 	public:
-		Node(const Token* tok);
-		Node()=default;
-		virtual ~Node();
+		virtual ~Node()=default;
 
 		/*
 			This is for debugging purposes.
 			\returns \n the node in a readable format
 		*/
-		virtual Str getInStr();
+		virtual Str getInStr() {return "Node";}
 		/*
 			\returns Type of the node
 		*/
-		virtual NodeType getType();
+		virtual NodeType getType()=0;
 		/*
 			\returns Position of the node
 		*/
-		virtual std::array<Position, 2> getPos();
+		virtual std::array<Position, 2> getPos()=0;
 
 		/*
-			Sets the value of the node
+			Sets the Token of the node
 		*/
-		virtual void SetValue(const Token* val);
+		virtual void SetToken(const Token* val){}
+		/*
+			Get the value of the node
+		*/
+		virtual const Token* GetToken(){return nullptr;}
 
 		/*
 			Evaluate the node
 			\returns an object contaiing the value
 		*/
-		virtual Ref<Object> visit();
-		virtual std::string translateToC();
-	protected:
-		NodeType type = ValueNode;
-		const Token* value = nullptr;
+		virtual Ref<Object> visit()=0;
+
+		/*
+			Translating the tree in C code
+			TODO
+		*/
+		virtual std::string translateToC(){return "";}
 	};
-	using NumberNode = Node;
-	using IntNode = Node;
-	using FloatNode = Node;
-	using StrNode = Node;
-
-}
-
-namespace CulLang {
-
-	Node::Node(const Token* tok)
-		:value(tok)
-	{}
-	Node::~Node()
-	{
-	}
-
-	Str Node::getInStr()
-	{
-		return value->getTypeStr();
-	}
-
-	NodeType Node::getType()
-	{
-		return type;
-	}
-	std::array<Position, 2> Node::getPos()
-	{
-		return value->getPos();
-	}
-	void Node::SetValue(const Token* val)
-	{
-		value = val;
-	}
-	Ref<Object> Node::visit()
-	{
-		return value->getValueConverted();
-	}
-	std::string Node::translateToC()
-	{
-		return value->getConvertedtoC();
-	}
-
 }

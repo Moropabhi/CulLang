@@ -15,7 +15,7 @@ class ForNode : public Node {
     virtual ~ForNode() override;
 
     virtual std::string getInStr() override;
-    NodeType getType() override;
+    NodeType getType() override  { return ForblockNode; }
     virtual std::array<Position, 2> getPos() override;
 
     virtual Ref<Object> visit() override;
@@ -23,23 +23,15 @@ class ForNode : public Node {
 ForNode::ForNode(const Ref<Node> &initial, const Ref<Node> &condition,
                  const Ref<Node> &increment, const Ref<Node> &expression)
     : initial(initial), condition(condition), increment(increment),
-      expression(expression), Node(nullptr) {
-    type = ForblockNode;
-}
+      expression(expression) {}
 
 ForNode::~ForNode() {}
 
 std::string ForNode::getInStr() {
     auto out = "for " + initial->getInStr() + " \\ " + condition->getInStr() +
                " \\ " + increment->getInStr() + " : " + expression->getInStr();
-    // if(elseExpression)
-    // {
-    //     out += " else : " + elseExpression->getInStr();
-    // }
     return out;
 };
-
-NodeType ForNode::getType() { return ForblockNode; }
 
 std::array<Position, 2> ForNode::getPos() {
     return {initial->getPos()[0], increment->getPos()[1]};
@@ -51,10 +43,6 @@ Ref<Object> ForNode::visit() {
          increment->visit()) {
         expression->visit();
     }
-    // if (elseExpression)
-    //     elseExpression->visit();
     return Object::NONE;
 }
 } // namespace CulLang
-
-// namespace CulLang

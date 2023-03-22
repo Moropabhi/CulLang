@@ -32,7 +32,7 @@ SymbolTable* SymbolTable::currentTable = &SymbolTable::getGlobal();
 
 void SymbolTable::addVariable(const Token &value, Ref<Object> o) {
     if (isThereVariable(value))
-        ErrorHandler::raiseError({ErrorType::NotDefined, value.getPos()[0],
+        ErrorHandler::raiseError({ErrorType::AlreadyDefined, value.getPos()[0],
                                   value.getPos()[1],
                                   "Identifier already defined"});
     vartable[value.getVal()] = o;
@@ -71,7 +71,7 @@ bool SymbolTable::isThereVariable(const Token &value) {
 
 void SymbolTable::addFunc(const Token &value, Ref<Node> o) {
     if (isThereFunc(value))
-        ErrorHandler::raiseError({ErrorType::NotDefined, value.getPos()[0],
+        ErrorHandler::raiseError({ErrorType::AlreadyDefined, value.getPos()[0],
                                   value.getPos()[1],
                                   "Identifier already defined"});
     funcTable[value.getVal()] = o;

@@ -1,6 +1,5 @@
 #pragma once
 #include "Object.h"
-#define INTEGER int64_t
 #include <cmath>
 #include "Float.h"
 

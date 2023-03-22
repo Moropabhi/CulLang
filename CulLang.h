@@ -1,41 +1,73 @@
-#include "Utilities.h"
-#include "Position.h"
-#include "debug/ErrorHandler.h"
-#include "PreProcessor.h"
 #include "Lexer.h"
 #include "Parser.h"
+#include "Position.h"
+#include "PreProcessor.h"
 #include "Program.h"
+#include "Utilities.h"
+#include "debug/ErrorHandler.h"
 namespace CulLang {
-auto Shurti_isTautor = true;
 class CulLang {
   public:
     CulLang() = default;
     std::string getInput() {
         std::string a;
         std::cout << ">>> ";
-        //std::getline(std::cin, a);
-        std::getline(std::cin,a);
+        std::getline(std::cin, a);
         return a;
     }
 
-    std::string interpreteCode(std::string code) {
-        Lexer lexer;
-        auto out = lexer.make_tokens(code);
+    std::vector<Ref<Node>> getAST(std::string code) {
+        // a preprocessor class (will be removed on later commits)
+        PreProcessor pprocess(code);
+        code = pprocess.format();
 
-        if (ErrorHandler::anyErrors())
-            return "";
-        // for (auto& i:out)
-        // std::cout<<i.getTypeStr()<<' '<<i.getVal()<<'\n';
-        Parser parser(out);
+        LOG(code);
+        LOG("LEXER : START");
+
+        // running the lexer and making tokens
+        Lexer lexer;
+        auto tokens = lexer.make_tokens(code);
+
+        // returning if any error occured
+        if (ErrorHandler::anyErrors()) {
+            std::cout << "Lexer : Error occured failed" << '\n';
+            return {};
+        }
+
+        for (auto &i : tokens)
+            LOG(i.getTypeStr() + ' ' + i.getVal());
+
+        LOG("LEXER : DONE");
+        LOG("PARSER : START");
+        // parsing the tokens and making nodes(vector of no)
+        Parser parser(tokens);
         auto nodes = parser.parse();
-        if (ErrorHandler::anyErrors())
-            return "";
-        // std::cout<<a->getInStr()<<std::endl;
-        auto out2 = nodes[0]->visit();
-        // std::cout<<ErrorHandler::getStack().size()<<'\n';
-        // if(out2)
-        // std::cout<<out2->type<<'\n'<<out2->asAStr()<<'\n';
-        return out2 ? out2->asAStr() : "";
+
+        // returning if any error occured
+        if (ErrorHandler::anyErrors()) {
+            std::cout << "Parser : Error occured failed" << '\n';
+            return {};
+        }
+        LOG("PARSER : DONE");
+
+#if 0
+        DEBUG_LOG(nodes[0]->getInStr());
+        for (auto &node : nodes)
+            std::cout << node << ' ' << (node ? node->getInStr() : "node") <<' '<< (node ? node->GetToken()->getVal() : "node")
+                      << std::endl;
+#endif
+        return nodes;
+    }
+
+    std::string interpreteCode(std::string code) {
+        code+='\n';
+        std::vector<Ref<Node>> nodes = getAST(code);
+        if (!nodes.size())
+            std::cout << "Error occured\n";
+        LOG("RUNNING");
+        Ref<Object> object = nodes[0]->visit();
+        LOG("DONE RUNNING");
+        return object != Object::NONE ? object->asAStr() : "";
     }
 
     void runInterpreter() {
@@ -45,13 +77,15 @@ class CulLang {
             input = getInput();
             if (input == ".")
                 break;
-            if(input == "")
+            if (input == "") {
+                std::cout << '\r';
                 continue;
+            }
             auto out = interpreteCode(input);
-
             std::cout << out << '\n';
-            ErrorHandler::clear();
         }
+        ErrorHandler::clear();
+        SymbolTable::getGlobal().clear();
     }
 
     void runFile(const std::string &filename) {
@@ -64,55 +98,22 @@ class CulLang {
             code += s;
             code += '\n';
         }
-
-        // a preprocessor class (will be removed on later commits)
-        PreProcessor pprocess(code);
-        code = pprocess.format();
-
-#if DEBUG
-        std::cout << code << '\n';
-#endif
-
-        // running the lexer and making tokens
-        Lexer lexer;
-        auto tokens = lexer.make_tokens(code);
-
-        // returning if any error occured
-        if (ErrorHandler::anyErrors()) {
-            std::cout << "Lexer : Error occured failed" << '\n';
+        if (!code.length())
             return;
-        }
-#if DEBUG
-        for (auto &i : tokens)
-            std::cout << i.getTypeStr() << ' ' << i.getVal() << '\n';
-#endif
 
-        // parsing the tokens and making nodes(vector of no)
-        Parser parser(tokens);
-        auto nodes = parser.parse();
-
-        // returning if any error occured
-        if (ErrorHandler::anyErrors()) {
-            std::cout << "Parser : Error occured failed" << '\n';
-            return;
-        }
-        
-#if DEBUG
-        for (auto &node : nodes)
-            std::cout << node << ' ' << (node ? node->getInStr() : "node")
-                      << std::endl;
-#endif
-
+        std::vector<Ref<Node>> nodes = getAST(code);
         // creating the program object and run it
+
+        if (!nodes.size())
+            return;
+
         Program prog(nodes);
         prog.run();
 
-#if DEBUG
-        std::cout << "DEBUG:\n";
-        std::cout << ErrorHandler::anyErrors() << '\n';
-        std::cout << ErrorHandler::anyStackErrors() << '\n';
-        std::cout << ErrorHandler::getStack().size() << '\n';
-#endif
+        LOG("DEBUG:\n");
+        LOG(ErrorHandler::anyErrors());
+        LOG(ErrorHandler::anyStackErrors());
+        LOG(ErrorHandler::getStack().size());
 
         // clearing the data
         ErrorHandler::clear();
