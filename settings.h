@@ -1,5 +1,5 @@
 #pragma once
-#define DEBUG 1
+#define DEBUG 0
 
 #define INTEGER int64_t
 #define FLOAT double

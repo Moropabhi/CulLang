@@ -14,6 +14,7 @@ class Program {
             if (ErrorHandler::anyErrors() || ErrorHandler::anyStackErrors())
                 return;
             node->visit();
+
         }
     }
 

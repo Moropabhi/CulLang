@@ -50,12 +50,6 @@ class CulLang {
         }
         LOG("PARSER : DONE");
 
-#if 0
-        DEBUG_LOG(nodes[0]->getInStr());
-        for (auto &node : nodes)
-            std::cout << node << ' ' << (node ? node->getInStr() : "node") <<' '<< (node ? node->GetToken()->getVal() : "node")
-                      << std::endl;
-#endif
         return nodes;
     }
 

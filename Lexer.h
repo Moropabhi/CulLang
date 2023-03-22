@@ -1,10 +1,10 @@
 #pragma once
 #include <vector>
 
-#include "debug/ErrorHandler.h"
 #include "KeyWord.h"
 #include "Token.h"
 #include "Utilities.h"
+#include "debug/ErrorHandler.h"
 
 namespace CulLang {
 class Lexer {
@@ -22,7 +22,6 @@ class Lexer {
     void getNumber(std::vector<Token> &tokens);
     void getIdentifier(std::vector<Token> &tokens);
     void getInvalidCharErr() {
-        
 
         Str message = "' ";
         message += m_CurrentChar;
@@ -176,22 +175,41 @@ bool Lexer::isOperator(std::vector<Token> &tokens) {
 
     for (int i = 0; i < TokenTypeStr[culOperatorsStart].length(); i++) {
         if (isalnum(m_CurrentChar) || m_CurrentChar == '_' ||
-            m_CurrentChar == ' '||
-            m_CurrentChar == '\n')
+            m_CurrentChar == ' ' || m_CurrentChar == '\n')
             break;
         op += m_CurrentChar;
         advance();
     }
     LOG(op);
-    auto val = std::find(TokenTypeStr.begin() + culOperatorsStart,
+
+    auto findOp = [](std::string op) {
+        return std::find(TokenTypeStr.begin() + culOperatorsStart,
                          TokenTypeStr.begin() + culOperatorsEnd, op) -
                TokenTypeStr.begin();
-
-    if (val != culOperatorsEnd) {
+    };
+    int val;
+    if ((val = findOp(op)) != culOperatorsEnd) {
         tokens.push_back(
             {m_Pos.getReceded(m_CurrentChar), m_Pos, (TokenType)val});
         return true;
     }
+    auto len = op.length();
+    int val1=culOperatorsEnd, val2=culOperatorsEnd, i;
+    for (i = 1; i < len && val1 == culOperatorsEnd && val2 == culOperatorsEnd; i++) {
+        auto op_ = op.substr(0, len - i);
+        val1 = findOp(op_);
+        auto op_2 = op.substr(len - i, len);
+        val2 = findOp(op_2);
+    }
+    if(val1 != culOperatorsEnd && val2 != culOperatorsEnd)
+    {
+        tokens.push_back(
+            {m_Pos.getReceded(m_CurrentChar), m_Pos, (TokenType)val1});
+        tokens.push_back(
+            {m_Pos.getReceded(m_CurrentChar), m_Pos, (TokenType)val2});
+        return true;
+    }
+
     return false;
 }
 } // namespace CulLang

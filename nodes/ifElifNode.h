@@ -44,7 +44,7 @@ std::string IfElifNode::getInStr() {
     for (auto &i : ifs)   
     {
         static bool is_if = true;
-        out += is_if?"if ":"\nelif " + i.condition->getInStr() + " : " +
+        out+=(is_if?"if ":"\nelif ") + i.condition->getInStr() + " : " +
                i.expression->getInStr();
 
     } 

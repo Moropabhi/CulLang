@@ -1,4 +1,7 @@
 #pragma once
+
+#include "../debug/ErrorHandler.h"
+
 namespace CulLang {
 struct Object {
   Object() = default;

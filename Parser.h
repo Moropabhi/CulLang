@@ -391,7 +391,6 @@ Ref<Node> Parser::checkKeyword() {
 
         if (IS_KEYWORD(currentToken, culElif)) {
             while (IS_KEYWORD(currentToken, culElif)) {
-                std::cout<<"elif\n";
                 advance();
                 auto cond = condition();
                 if (!checkFor(culColon))
