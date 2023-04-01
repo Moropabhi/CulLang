@@ -21,17 +21,16 @@ stmt 		: expr
 
 			: KEYWORD:PRINT expr
 
-			: KEYWORD:IF condition COLON stmt
 			: KEYWORD:IF condition COLON block
-			: KEYWORD:IF condition COLON stmt KEYWORD:ELSE COLON stmt
-			: KEYWORD:IF condition COLON stmt KEYWORD:ELIF condition COLON stmt
-			: KEYWORD:IF condition COLON stmt KEYWORD:ELIF condition COLON stmt KEYWORD:ELSE stmt
+			: KEYWORD:IF condition COLON stmt KEYWORD:ELSE COLON block
+			: KEYWORD:IF condition COLON stmt KEYWORD:ELIF condition COLON block
+			: KEYWORD:IF condition COLON stmt KEYWORD:ELIF condition COLON stmt KEYWORD:ELSE block
 
 			: KEYWORD:FOR stmt BACKSLASH condition BACKSLASH stmt COLON block
-			TODO: KEYWORD:LOOP COLON block
+			: KEYWORD:LOOP COLON block
 			: KEYWORD:WHILE condition COLON block
 
-			TODO: KEYWORD:FUNC IDENTIFIER LPAREN RPAREN COLON stmt
+			TODO: KEYWORD:FUNC IDENTIFIER LPAREN RPAREN COLON block
 
 
 

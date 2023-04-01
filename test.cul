@@ -15,3 +15,11 @@ for let i = 0 \ i < 10 \ i++ :{
     continue
     print "NO"
 }
+
+a = 0
+loop{
+    print a
+    a++
+    if a==100:
+        break
+}

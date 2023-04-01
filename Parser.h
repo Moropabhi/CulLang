@@ -16,6 +16,7 @@
 #include "nodes/VarAllocateNode.h"
 #include "nodes/WhileNode.h"
 #include "nodes/ifElifNode.h"
+#include "nodes/LoopNode.h"
 
 #define IS_KEYWORD(token, Keyword) (token->getVal() == CulKeywordStr[Keyword])
 
@@ -296,6 +297,8 @@ Ref<Node> Parser::stmt() {
     return condition();
 }
 Ref<Node> Parser::block() {
+    if (Token::checkIfEqual(currentToken,culNewLine))
+        advance();
     DEBUG_LOG(currentToken->getTypeStr());
     if (currentToken->getType() != culLCurly) {
         return std::make_shared<BlockNode>(std::vector<Ref<Node>>{stmt()});
@@ -304,25 +307,6 @@ Ref<Node> Parser::block() {
     std::vector<Ref<Node>> stmts;
     Ref<Node> st;
     do {
-        if (Token::checkIfEqual(currentToken, culKeyword)&&
-            (IS_KEYWORD(currentToken,culBreak)||IS_KEYWORD(currentToken,culContinue)))
-        {
-            if(!is_breakncontinue)
-            {
-                ErrorHandler ::raiseError({SemanticsError, currentToken->getPos(),
-                                   "break and continue keyword is not a valid statement in this block"});
-            }
-            if (IS_KEYWORD(currentToken,culBreak))
-                stmts.push_back(std::make_shared<BreakNode>());
-            else if (IS_KEYWORD(currentToken,culContinue))
-                stmts.push_back(std::make_shared<ContinueNode>());
-            advance();
-            if(currentToken->getType() != culNewLine)
-                ErrorHandler ::raiseError({SyntaxError, currentToken->getPos(),
-                                   "break and continue keyword is a single statement "});
-            advance();
-            continue;
-        }else{
             //LOG(currentToken->getVal()<<" : "<<currentToken->getType()<<" : "<<currentToken->getTypeStr());
             st = stmt();
             //LOG(currentToken->getVal()<<" : "<<currentToken->getTypeStr());
@@ -331,8 +315,6 @@ Ref<Node> Parser::block() {
                 advance();
                 //LOG(currentToken->getVal()<<" : "<<currentToken->getTypeStr());
             }
-        
-        }
 
     } while (st && currentToken && currentToken->getType() != culRCurly);
 
@@ -468,7 +450,27 @@ Ref<Node> Parser::checkKeyword() {
         is_breakncontinue=false;
 
         return std::make_shared<ForNode>(init, cond, increment, statement);
-    } else {
+    } else if (IS_KEYWORD(currentToken, culLoop)) {
+        advance();
+
+        is_breakncontinue=true;
+        auto statement = block();
+        is_breakncontinue=false;
+
+        return std::make_shared<LoopNode>(statement);
+    } else if (IS_KEYWORD(currentToken, culBreak)){
+        advance();
+        if(currentToken->getType() != culNewLine)
+            ErrorHandler ::raiseError({SyntaxError, currentToken->getPos(),
+                                   "break and continue keyword is a single statement "});
+        return std::make_shared<BreakNode>();
+    } else if (IS_KEYWORD(currentToken, culContinue)){
+        advance();
+        if(currentToken->getType() != culNewLine)
+            ErrorHandler ::raiseError({SyntaxError, currentToken->getPos(),
+                                   "break and continue keyword is a single statement "});
+        return std::make_shared<ContinueNode>();
+    }else {
         ErrorHandler::raiseError(
             {ErrorType::FeatureNotImplementedYet, currentToken->getPos(),
              "this keyword is not meant to be in this place "

@@ -18,6 +18,7 @@ enum Keywords
 	culElse,
 	culWhile,
 	culFor,
+	culLoop,
 	culBreak,
 	culContinue,
 	culKeyWordEnd
@@ -37,6 +38,8 @@ const std::array < std::string,culKeyWordEnd > CulKeywordStr = {
 	"else",
 	"while",
 	"for",
+	"loop",
 	"break",
-	"continue"
+	"continue",
+	
 };

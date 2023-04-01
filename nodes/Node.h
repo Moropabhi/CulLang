@@ -18,6 +18,7 @@ namespace CulLang {
 		IfblockNode,
 		WhileblockNode,
 		ForblockNode,
+		LoopblockNode,
 		Break,
 		Continue,
 		FuncblockNode,

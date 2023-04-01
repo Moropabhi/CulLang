@@ -11,13 +11,13 @@ class WhileNode : public Node {
     virtual ~WhileNode() override;
 
     virtual std::string getInStr() override;
-    NodeType getType() override  { return WhileblockNode; }
+    NodeType getType() override { return WhileblockNode; }
     virtual std::array<Position, 2> getPos() override;
 
     virtual Ref<Object> visit() override;
 };
 WhileNode::WhileNode(const Ref<Node> &condition, const Ref<Node> &expression)
-    : condition(condition), expression(expression){}
+    : condition(condition), expression(expression) {}
 
 WhileNode::~WhileNode() {}
 
@@ -31,10 +31,10 @@ std::array<Position, 2> WhileNode::getPos() { return condition->getPos(); }
 
 Ref<Object> WhileNode::visit() {
 
-    while (*(bool *)condition->visit()->getVal()&& (!BreakNode::shouldBreak)) {
+    while (*(bool *)condition->visit()->getVal() && (!BreakNode::shouldBreak)) {
         expression->visit();
     }
-    BreakNode::shouldBreak=false;
+    BreakNode::shouldBreak = false;
     return Object::NONE;
 }
 } // namespace CulLang
