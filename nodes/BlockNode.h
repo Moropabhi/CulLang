@@ -1,6 +1,9 @@
 #pragma once
 
 #include "Node.h"
+#include "BreakNode.h"
+#include "ContinueNode.h"
+
 namespace CulLang {
 class BlockNode : public Node {
   public:
@@ -35,7 +38,9 @@ Ref<Object> BlockNode::visit() {
 
     for (auto &i : expressions) {
         i->visit();
+        if(BreakNode::shouldBreak||ContinueNode::shouldContinue) break;
     }
+    ContinueNode::shouldContinue=false;
     return Object::NONE;
 }
 } // namespace CulLang

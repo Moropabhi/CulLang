@@ -39,10 +39,11 @@ std::array<Position, 2> ForNode::getPos() {
 
 Ref<Object> ForNode::visit() {
 
-    for (initial->visit(); *(bool *)(condition->visit()->getVal());
+    for (initial->visit(); *(bool *)(condition->visit()->getVal())&& (!BreakNode::shouldBreak);
          increment->visit()) {
         expression->visit();
     }
+    BreakNode::shouldBreak=false;
     return Object::NONE;
 }
 } // namespace CulLang

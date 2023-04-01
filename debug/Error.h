@@ -16,6 +16,7 @@ enum ErrorType {
     NotDefined,
     AlreadyDefined,
     FeatureNotImplementedYet,
+    SemanticsError,
     NoOfError
 
 };
@@ -79,7 +80,8 @@ class Error {
                                      "InvalidOperation",
                                      "NotDefined",
                                      "AlreadyDefined",
-                                     "FeatureNotImplementedYet"};
+                                     "FeatureNotImplementedYet",
+                                     "SemanticsError"};
 #endif
 };
 } // namespace CulLang

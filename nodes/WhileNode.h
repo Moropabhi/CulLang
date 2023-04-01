@@ -31,9 +31,10 @@ std::array<Position, 2> WhileNode::getPos() { return condition->getPos(); }
 
 Ref<Object> WhileNode::visit() {
 
-    while (*(bool *)condition->visit()->getVal()) {
+    while (*(bool *)condition->visit()->getVal()&& (!BreakNode::shouldBreak)) {
         expression->visit();
     }
+    BreakNode::shouldBreak=false;
     return Object::NONE;
 }
 } // namespace CulLang

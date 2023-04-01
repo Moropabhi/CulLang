@@ -39,6 +39,7 @@ enum TokenType
 	culMod,
 
 	culColon,
+	culSemiColon,
 	culPipe,
 	culBackSlash,
 
@@ -48,7 +49,7 @@ enum TokenType
 	culRCurly,
 	culEqual,
 	culOperatorsEnd,
-	culIndentifier=culOperatorsEnd,
+	culIdentifier=culOperatorsEnd,
 	culNewLine,
 	culKeyword,
 	culTotal
@@ -86,6 +87,7 @@ const std::array<std::string,culTotal> TokenTypeStr = {
 	"%",
 
 	":",
+	";",
 	"|",
 	"\\",
 
@@ -95,7 +97,7 @@ const std::array<std::string,culTotal> TokenTypeStr = {
 	"}",
 	"=",
 	"identifier",
-	"\\n"
+	"\\n",
 	"keyword",
 	};
 

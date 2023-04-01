@@ -115,8 +115,10 @@ class Parser {
         return std::make_shared<UnaryOperatorNode>(opToken, right);
     }
 
+
   private:
     std::vector<Ref<Node>> nodes;
+    bool is_breakncontinue = false;
 };
 
 Parser::Parser(std::vector<Token> &tokens)
@@ -183,7 +185,7 @@ Ref<Node> Parser::atom() {
         advance();
         return res;
     }
-    if (Token::checkIfEqual(currentToken, culIndentifier)) {
+    if (Token::checkIfEqual(currentToken, culIdentifier)) {
         Ref<Node> res = std::make_shared<VarAccessNode>(currentToken);
         advance();
         return res;
@@ -274,7 +276,7 @@ Ref<Node> Parser::stmt() {
         return checkKeyword();
     }
 
-    if (Token::checkIfEqual(currentToken, culIndentifier)) {
+    if (Token::checkIfEqual(currentToken, culIdentifier)) {
         const auto id = currentToken;
         advance();
         if (Token::checkIfEqual(currentToken, culEqual)) {
@@ -294,23 +296,42 @@ Ref<Node> Parser::stmt() {
     return condition();
 }
 Ref<Node> Parser::block() {
-    LOG(currentToken->getVal());
     DEBUG_LOG(currentToken->getTypeStr());
     if (currentToken->getType() != culLCurly) {
         return std::make_shared<BlockNode>(std::vector<Ref<Node>>{stmt()});
     }
     advance();
-
     std::vector<Ref<Node>> stmts;
     Ref<Node> st;
     do {
-        // LOG(currentToken->getVal()<<" : "<<currentToken->getTypeStr());
-        st = stmt();
-        // LOG(currentToken->getVal()<<" : "<<currentToken->getTypeStr());
-        if (st) {
-            stmts.push_back(st);
+        if (Token::checkIfEqual(currentToken, culKeyword)&&
+            (IS_KEYWORD(currentToken,culBreak)||IS_KEYWORD(currentToken,culContinue)))
+        {
+            if(!is_breakncontinue)
+            {
+                ErrorHandler ::raiseError({SemanticsError, currentToken->getPos(),
+                                   "break and continue keyword is not a valid statement in this block"});
+            }
+            if (IS_KEYWORD(currentToken,culBreak))
+                stmts.push_back(std::make_shared<BreakNode>());
+            else if (IS_KEYWORD(currentToken,culContinue))
+                stmts.push_back(std::make_shared<ContinueNode>());
             advance();
-            // LOG(currentToken->getVal()<<" : "<<currentToken->getTypeStr());
+            if(currentToken->getType() != culNewLine)
+                ErrorHandler ::raiseError({SyntaxError, currentToken->getPos(),
+                                   "break and continue keyword is a single statement "});
+            advance();
+            continue;
+        }else{
+            //LOG(currentToken->getVal()<<" : "<<currentToken->getType()<<" : "<<currentToken->getTypeStr());
+            st = stmt();
+            //LOG(currentToken->getVal()<<" : "<<currentToken->getTypeStr());
+            if (st) {
+                stmts.push_back(st);
+                advance();
+                //LOG(currentToken->getVal()<<" : "<<currentToken->getTypeStr());
+            }
+        
         }
 
     } while (st && currentToken && currentToken->getType() != culRCurly);
@@ -354,18 +375,12 @@ Ref<Node> Parser::evaluate(ParserConstant p) {
 Ref<Node> Parser::checkKeyword() {
     if (IS_KEYWORD(currentToken, culLet)) {
         advance();
-        if (Token::checkIfNotEqual(currentToken, culIndentifier)) {
-            ErrorHandler::raiseError({SyntaxError, currentToken->getPos(),
-                                      "Expected an identifier"});
-            return nullptr;
-        }
+        if (!checkFor(culIdentifier)) 
+            return nullptr; 
         const auto id = currentToken;
         advance();
-        if (Token::checkIfNotEqual(currentToken, culEqual)) {
-            ErrorHandler::raiseError({SyntaxError, currentToken->getPos(),
-                                      "Expected an equal sign '='"});
-            return nullptr;
-        }
+        if (!checkFor(culEqual)) 
+            return nullptr; 
         advance();
         return std::make_shared<VarAllocateNode>(id, condition());
     } else if (IS_KEYWORD(currentToken, culPrint)) {
@@ -412,48 +427,46 @@ Ref<Node> Parser::checkKeyword() {
 
     } else if (IS_KEYWORD(currentToken, culWhile)) {
         advance();
+
         auto cond = condition();
-        if (currentToken->getType() != culColon) {
-            ErrorHandler ::raiseError(
-                {SyntaxError, currentToken->getPos(), "expected a colon"});
+
+        if(!checkFor(culColon)) 
             return nullptr;
-        }
+
         advance();
-        auto statement = stmt();
+
+        is_breakncontinue=true;
+        auto statement = block();
+        is_breakncontinue=false;
+
         return std::make_shared<WhileNode>(cond, statement);
     } else if (IS_KEYWORD(currentToken, culFor)) {
         advance();
-        // std::cout << "for looping\n";
         auto init = stmt();
-        // std::cout << "stopped at " << currentToken->getTypeStr()<<' '
-        //           << (currentToken->getType() == culBackSlash) << '\n';
-        if (currentToken->getType() != culBackSlash) {
-            ErrorHandler ::raiseError(
-                {SyntaxError, currentToken->getPos(), "expected a '\''"});
+
+        if(!checkFor(culBackSlash)) 
             return nullptr;
-        }
+
         advance();
+
         auto cond = condition();
-        // std::cout << "stopped2 at " << currentToken->getTypeStr()<<' '
-        //           << (currentToken->getType() == culBackSlash) << '\n';
-        if (currentToken->getType() != culBackSlash) {
-            ErrorHandler ::raiseError(
-                {SyntaxError, currentToken->getPos(), "expected a '\''"});
+
+        if(!checkFor(culBackSlash)) 
             return nullptr;
-        }
+
         advance();
-        // std::cout << "started3 at " << currentToken->getTypeStr()<<' '
-        //           << (tokenIdx)<< currentToken->getVal()<< '\n';
+
         auto increment = stmt();
-        // std::cout << "stopped3 at " << currentToken->getTypeStr()<<' '
-        //           << (tokenIdx)<< currentToken->getVal()<< '\n';
-        if (currentToken->getType() != culColon) {
-            ErrorHandler ::raiseError(
-                {SyntaxError, currentToken->getPos(), "expected a colon"});
+
+        if(!checkFor(culColon)) 
             return nullptr;
-        }
+
         advance();
-        auto statement = stmt();
+
+        is_breakncontinue=true;
+        auto statement = block();
+        is_breakncontinue=false;
+
         return std::make_shared<ForNode>(init, cond, increment, statement);
     } else {
         ErrorHandler::raiseError(

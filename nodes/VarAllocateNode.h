@@ -40,7 +40,6 @@ namespace CulLang
     {
 
         auto res = expr->visit();
-        LOG("why");
         SymbolTable::getGlobal().addVariable( var_tok, res);
         return Object::NONE;
     }

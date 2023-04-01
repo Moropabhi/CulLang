@@ -7,8 +7,10 @@ program 	: stmt ((NEWLINE) stmt)
 specifier 	TODO: stmt 
 			TODO: block
 
-block 		TODO: LCURLY stmt ((NEWLINE) stmt) RCURLY
+block 		: LCURLY stmt ((NEWLINE) stmt) RCURLY
 			TODO: block
+			: break (for, while)
+			: continue (for, while)
 
 #STATEMENT THAT DOESN'T RETURN ANY THING AND PART THE LANGUAGE CONTROL FLOW
 stmt 		: expr
@@ -25,9 +27,9 @@ stmt 		: expr
 			: KEYWORD:IF condition COLON stmt KEYWORD:ELIF condition COLON stmt
 			: KEYWORD:IF condition COLON stmt KEYWORD:ELIF condition COLON stmt KEYWORD:ELSE stmt
 
-			: KEYWORD:FOR stmt BACKSLASH condition BACKSLASH stmt COLON stmt
+			: KEYWORD:FOR stmt BACKSLASH condition BACKSLASH stmt COLON block
 			TODO: KEYWORD:LOOP COLON block
-			: KEYWORD:WHILE condition COLON stmt
+			: KEYWORD:WHILE condition COLON block
 
 			TODO: KEYWORD:FUNC IDENTIFIER LPAREN RPAREN COLON stmt
 

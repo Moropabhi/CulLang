@@ -9,4 +9,9 @@ if a> 39:{
     print -1
 }
 
-
+for let i = 0 \ i < 10 \ i++ :{
+    print i
+    print "yes"
+    continue
+    print "NO"
+}

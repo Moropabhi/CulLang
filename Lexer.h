@@ -73,9 +73,6 @@ void Lexer::recede() {
 }
 
 void Lexer::getSymbol(std::vector<Token> &tokens) {
-    // if (!m_CurrentChar)
-    //	return;
-
     if (m_CurrentChar == ' ')
         return advance();
 
@@ -136,7 +133,7 @@ void Lexer::getNumber(std::vector<Token> &tokens) {
 }
 void Lexer::getIdentifier(std::vector<Token> &tokens) {
     Str identifier;
-    TokenType type = culIndentifier;
+    TokenType type = culIdentifier;
     const auto pos0 = m_Pos;
     do {
         identifier += m_CurrentChar;
